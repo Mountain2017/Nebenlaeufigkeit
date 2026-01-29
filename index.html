@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lernpfad: Parallele Prozesse & Synchronisation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Prism for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="icon">⚡</span>
+                <span>Parallele Prozesse</span>
+            </div>
+            <div class="nav-progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>Kapitel</h3>
+            <button class="sidebar-toggle" id="sidebarToggle">✕</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#intro" data-chapter="0">📋 Übersicht</a></li>
+            <li><a href="#chapter1" data-chapter="1">🚀 Einführung & Grundbegriffe</a></li>
+            <li><a href="#chapter2" data-chapter="2">🔄 Synchronisation & Konflikte</a></li>
+            <li><a href="#chapter3" data-chapter="3">🐞 Übungen mit MultiKara</a></li>
+            <li><a href="#chapter4" data-chapter="4">⚙️ Tasks & Threads</a></li>
+            <li><a href="#chapter5" data-chapter="5">☕ Nebenläufigkeit in Java</a></li>
+        </ul>
+    </aside>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Intro Section -->
+            <section id="intro" class="content-section active">
+                <div class="hero">
+                    <h1 class="hero-title">Parallele Prozesse</h1>
+                    <p class="hero-subtitle">Concurrent Programming</p>
+                    <p class="hero-description">Eine Unterrichtseinheit für die 12. Klasse Informatik</p>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-icon">🎯</div>
+                        <h3>Ziele</h3>
+                        <ul>
+                            <li>Grundlagen paralleler Prozesse verstehen</li>
+                            <li>Synchronisation und Kommunikation von Prozessen</li>
+                            <li>Probleme erkennen und lösen (Deadlocks)</li>
+                            <li>Eigene nebenläufige Programme entwickeln</li>
+                        </ul>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">👥</div>
+                        <h3>Zielgruppe</h3>
+                        <p><strong>12. Klasse Informatik</strong> (Oberstufe)</p>
+                        <p class="mt-2"><strong>Umfang:</strong> 4-8 Unterrichtsstunden</p>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-icon">📚</div>
+                        <h3>Vorkenntnisse</h3>
+                        <p>Hilfreich, aber nicht notwendig:</p>
+                        <ul>
+                            <li>Endliche Automaten</li>
+                            <li>Lernumgebung Kara (ETH Zürich)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-primary" onclick="navigateToChapter(1)">
+                        Los geht's →
+                    </button>
+                </div>
+            </section>
+
+            <!-- Chapter 1: Einführung -->
+            <section id="chapter1" class="content-section">
+                <div class="chapter-header">
+                    <span class="chapter-number">Kapitel 1</span>
+                    <h2>Einführung und Grundbegriffe</h2>
+                </div>
+
+                <div class="example-box">
+                    <h3>🍳 Beispiel 1: Sepp und Max im Stress</h3>
+                    <div class="example-content">
+                        <p><strong>Max</strong> kocht ein Dreiminuten-Ei, wäscht Salat, lässt den Pizza-Teig aufgehen und schlägt Rahm für die Creme zum Dessert.</p>
+                        <p><strong>Sepp</strong> schneidet Zwiebeln, um sie später anzudämpfen, siedet Tomaten, damit sie sich häuten, kocht Reis und muss aufpassen, dass der Zucker, den er für ein Karamell-Töpfchen einkocht, nicht anbrennt.</p>
+                        <p class="highlight">Ganz schön stressig für die beiden! Zum Glück hat jeder seinen eigenen Arbeitsplatz, so kommen sie sich nicht gegenseitig in die Quere.</p>
+                    </div>
+                </div>
+
+                <div class="task-box">
+                    <h4>📝 Arbeitsaufträge</h4>
+                    <ol>
+                        <li>Inwiefern arbeiten Sepp und Max gleichzeitig und unabhängig voneinander? Inwiefern kann man von zweierlei Arten der Gleichzeitigkeit sprechen?</li>
+                        <li>Nenne weitere Beispiele gleichzeitig ablaufender Alltagsprozesse.</li>
+                        <li>Gib Beispiele für Gleichzeitigkeit bei der Computernutzung an.</li>
+                    </ol>
+                    <button class="btn btn-secondary" onclick="toggleSolution('solution1')">Lösung anzeigen</button>
+                </div>
+
+                <div id="solution1" class="solution-box hidden">
+                    <h4>✅ Lösung</h4>
+                    <p><strong>Zu 1:</strong> Max und Sepp arbeiten zur selben Zeit im selben Raum, kommen sich jedoch dank getrennter Arbeitsplätze gegenseitig nicht in die Quere. Jeder kocht seine eigenen Gerichte, es gibt keine Zusammenarbeit.</p>
+                    <p><strong>Zwei Arten von Gleichzeitigkeit:</strong></p>
+                    <ul>
+                        <li>Die Köche arbeiten gleichzeitig jeder für sich</li>
+                        <li>Jeder der Köche führt gleichzeitig mehrere Arbeiten durch</li>
+                    </ul>
+                    
+                    <p><strong>Zu 2: Beispiele aus dem Alltag:</strong></p>
+                    <ul>
+                        <li>Essen: Hans trinkt aus seiner Tasse, Johanna isst ihr Honigbrot</li>
+                        <li>Verkehr: Heinz fährt von A nach B, Hanna fährt von A nach C</li>
+                        <li>Party: Peter und Hans wollen mit Susi tanzen</li>
+                        <li>Flughafen: Starten und Landen mehrerer Flugzeuge, Betanken, Be- und Entladen</li>
+                    </ul>
+
+                    <p><strong>Zu 3: Beispiele bei der Computernutzung:</strong></p>
+                    <ul>
+                        <li>Mehrere Dokumente ausdrucken und dabei weiterarbeiten</li>
+                        <li>Im Hintergrund arbeitender Virenscanner</li>
+                        <li>Surfen und gleichzeitig Downloads durchführen</li>
+                        <li>Musikdateien brennen und anhören</li>
+                        <li>DVD abspielen (DVD auslesen, Bild und Ton wiedergeben)</li>
+                        <li>Filme im Internet ansehen (gleichzeitiges Laden und Abspielen)</li>
+                        <li>Gleichzeitige Bestellung mehrerer Kunden bei einem Internet-Shop</li>
+                    </ul>
+                </div>
+
+                <div class="concept-box">
+                    <h3>💡 Merkzettel: Nebenläufigkeit</h3>
+                    <div class="definition">
+                        <p><strong>Nebenläufigkeit</strong> (engl. concurrency = Gleichzeitigkeit):</p>
+                        <p>Mehrere Vorgänge, Objekte oder Prozesse heißen <strong>nebenläufig</strong>, wenn sie voneinander unabhängig bearbeitet werden können.</p>
+                    </div>
+                    <ul class="concept-list">
+                        <li>Zentrale, moderne Programmiertechnik der Informatik</li>
+                        <li><strong>Spezialfall:</strong> Parallele Verarbeitung</li>
+                        <li><strong>Parallele Prozesse</strong> = nebenläufige Prozesse, die gleichzeitig in einem Computersystem ablaufen</li>
+                        <li class="highlight-item">parallel = nebenläufig + gleichzeitig!</li>
+                        <li><strong>Gegenteil:</strong> Sequentielle Verarbeitung (nacheinander)</li>
+                    </ul>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-outline" onclick="navigateToChapter(0)">← Zurück</button>
+                    <button class="btn btn-primary" onclick="navigateToChapter(2)">Weiter →</button>
+                </div>
+            </section>
+
+            <!-- Chapter 2: Synchronisation -->
+            <section id="chapter2" class="content-section">
+                <div class="chapter-header">
+                    <span class="chapter-number">Kapitel 2</span>
+                    <h2>Synchronisation und Konfliktmanagement</h2>
+                </div>
+
+                <div class="example-box">
+                    <h3>🍳 Fortsetzung: Sepp und Max bereiten ein Menü zu</h3>
+                    <p>Max ist für die Vorspeise und das Dessert zuständig, während sich Sepp um das Hauptgericht kümmert.</p>
+                </div>
+
+                <div class="task-box">
+                    <h4>📝 Arbeitsauftrag</h4>
+                    <p>Überlege, ob auch Abhängigkeiten zwischen den beiden bestehen könnten. Wenn ja, welche? Und wie müssten Sepp und Max dann zusammenarbeiten?</p>
+                    <button class="btn btn-secondary" onclick="toggleSolution('solution2a')">Lösung anzeigen</button>
+                </div>
+
+                <div id="solution2a" class="solution-box hidden">
+                    <h4>✅ Lösung</h4>
+                    <p>Beide nebenläufigen Prozesse (Tätigkeiten der Köche) sind nur bezüglich ihrer Abarbeitung unabhängig, jedoch <strong>indirekt voneinander abhängig</strong>:</p>
+                    <ul>
+                        <li>Zugriff auf gleiche Betriebsmittel (Herd, Pfannen, Zutaten)</li>
+                        <li>Arbeitsteilung erfordert Koordination</li>
+                        <li>Max kann das Hauptgericht erst servieren, wenn die Gäste die Vorspeise verzehrt haben</li>
+                        <li>Zeitliche und örtliche Abstimmung notwendig</li>
+                    </ul>
+                    <p class="highlight">→ <strong>Prozess-Synchronisation</strong> ist erforderlich!</p>
+                </div>
+
+                <div class="example-box warning">
+                    <h3>⚠️ Beispiel 2: Sepp und das kleine Pfännchen</h3>
+                    <p>Sepp will Zwiebeln anbraten und Zucker einkochen. Für beide Arbeiten braucht er ein kleines Pfännchen. Leider ist sein Arbeitsplatz etwas spärlich ausgestattet, und so hat er nur ein einziges, geeignetes Pfännchen.</p>
+                </div>
+
+                <div class="task-box">
+                    <h4>📝 Arbeitsaufträge</h4>
+                    <ol>
+                        <li>Warum kann man davon sprechen, dass sich für Sepp Konflikte beim Kochen ergeben?</li>
+                        <li>Übertrage das Beispiel auf die Informatik und nenne mögliche Konflikte und Konfliktlösungen bei der Computernutzung.</li>
+                    </ol>
+                    <button class="btn btn-secondary" onclick="toggleSolution('solution2b')">Lösung anzeigen</button>
+                </div>
+
+                <div id="solution2b" class="solution-box hidden">
+                    <h4>✅ Lösung</h4>
+                    <p><strong>Zu 1:</strong> Zeitdruck und beschränkte Betriebsmittel führen zu Konflikten:</p>
+                    <ul>
+                        <li>Gleichzeitige Verwendung des Pfännchens nicht möglich</li>
+                        <li>Problem: Knappheit der Ressourcen</li>
+                        <li>Wettstreit um notwendige Ressourcen (Betriebsmittel)</li>
+                    </ul>
+
+                    <p><strong>Zu 2: Informatik-Beispiele:</strong></p>
+                    
+                    <p><strong>Beispiel 1:</strong> Ausdruck zweier Texte auf demselben Drucker</p>
+                    <ul>
+                        <li>Ausgaben dürfen auf dem Papier nicht gemischt erscheinen</li>
+                        <li>Ein Prozess muss gesperrt werden, bis der andere seine Ausgabe beendet hat</li>
+                    </ul>
+
+                    <p><strong>Beispiel 2:</strong> Zwei Prozesse greifen schreibend auf dieselbe Datei zu</p>
+                    
+                    <p><strong>Lösungsansätze:</strong></p>
+                    <ol>
+                        <li><strong>Monitor (Belegung eines Betriebsmittels):</strong>
+                            <ul>
+                                <li>Abfrage an das Betriebsmittel „frei?"</li>
+                                <li>Falls JA: Betriebsmittel belegen</li>
+                                <li>Falls NEIN: Warten auf Freigabe</li>
+                            </ul>
+                        </li>
+                        <li><strong>Kritische Abschnitte</strong> (Critical Section)</li>
+                    </ol>
+                </div>
+
+                <div class="concept-box">
+                    <h3>💡 Merkzettel: Synchronisation</h3>
+                    <div class="key-points">
+                        <div class="key-point">
+                            <span class="number">1</span>
+                            <div>
+                                <strong>Parallele Prozesse können indirekt voneinander abhängig sein</strong>
+                                <p>→ Synchronisation (= Abstimmung paralleler Vorgänge aufeinander)</p>
+                            </div>
+                        </div>
+                        <div class="key-point">
+                            <span class="number">2</span>
+                            <div>
+                                <strong>Aufgrund knapper Betriebsmittel können Konflikte auftreten</strong>
+                                <p>→ Konfliktmanagement (z.B. durch wechselseitigen Ausschluss)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box danger">
+                    <h3>🚨 Beispiel 3: Sepp und Max beim Aufräumen (Deadlock)</h3>
+                    <p>Die Küche ist aufgeräumt, die beiden Köche müssen nur noch den Boden wischen. Jeder möchte möglichst rasch nach Hause gehen.</p>
+                    <p>Während Sepp den Besen holt, bringt Max den Wassereimer. Als sich nun Max nach dem Besen umsieht, merkt er, dass Sepp sich diesen genommen hat. Sepp geht es genauso: Wie er sich den Wassereimer nehmen will, sieht er, dass Max diesen bereits hat.</p>
+                    <p class="highlight">„Gib mir den Besen!", ruft Max. „Nein", sagt Sepp, „ich will jetzt den Wassereimer!" Die beiden blockieren sich. Wenn keiner nachgibt, werden sie den Boden nie reinigen können.</p>
+                </div>
+
+                <div class="task-box">
+                    <h4>📝 Arbeitsaufträge</h4>
+                    <ol>
+                        <li>Was unterscheidet diesen Konflikt von dem vorangehenden? Wie kann der Konflikt gelöst werden?</li>
+                        <li>Übertrage das Beispiel auf die Informatik und nenne mögliche Konflikte und Konfliktlösungen.</li>
+                    </ol>
+                    <button class="btn btn-secondary" onclick="toggleSolution('solution2c')">Lösung anzeigen</button>
+                </div>
+
+                <div id="solution2c" class="solution-box hidden">
+                    <h4>✅ Lösung</h4>
+                    <p><strong>Zu 1: Unterschied und Lösung:</strong></p>
+                    <p class="highlight">Dies ist eine <strong>Verklemmung (Deadlock)</strong>!</p>
+                    <p>Lösung: Auflösen der Verklemmung durch Zuteilung beider Betriebsmittel (Eimer und Besen) an einen Prozess.</p>
+
+                    <p><strong>Zu 2: Informatik-Beispiel:</strong></p>
+                    <p>Ein Prozess möchte Daten von der Festplatte auf einen Speicherstick transportieren:</p>
+                    <ul>
+                        <li>Prozess A reserviert die Festplatte und wartet auf den Speicherstick</li>
+                        <li>Prozess B hat den Speicherstick belegt und wartet auf die Festplatte</li>
+                        <li>Keiner der beiden Prozesse kann seine Verarbeitung fortsetzen</li>
+                        <li>Nur ein „gewaltsamer" Eingriff von außen kann die gegenseitige Blockierung auflösen</li>
+                    </ul>
+
+                    <p><strong>Weitere Beispiele:</strong></p>
+                    <ul>
+                        <li>Kontobuchungen (Überweisung)</li>
+                        <li>Datenbanken (Schreib- und Lesesperren)</li>
+                    </ul>
+                </div>
+
+                <div class="concept-box warning">
+                    <h3>💡 Merkzettel: Verklemmung</h3>
+                    <p class="highlight">Der wechselseitige Ausschluss genügt nicht – parallele Prozesse können sich sogar gegenseitig blockieren!</p>
+                    <p><strong>Verklemmung (Deadlock):</strong> Zwei oder mehr Prozesse warten gegenseitig auf Ressourcen, die der jeweils andere hält.</p>
+                    <p><strong>Lösung:</strong> Blockaden müssen erkannt und aufgelöst werden (Schutz durch Prozesskommunikation)</p>
+                </div>
+
+                <div class="strategy-grid">
+                    <h3>📊 Strategien zur Vermeidung bzw. Lösung von Konflikten</h3>
+                    
+                    <div class="strategy-card">
+                        <h4>Wechselseitiger Ausschluss (exklusiv)</h4>
+                        <ul>
+                            <li><strong>Monitor</strong> (engl. to monitor = überwachen)</li>
+                            <li><strong>Kritische Abschnitte</strong> (Critical Section)</li>
+                            <li>Konfliktmanagement</li>
+                            <li>Prozesskommunikation</li>
+                        </ul>
+                    </div>
+
+                    <div class="strategy-card">
+                        <h4>Zeitliche Synchronisation (inklusiv)</h4>
+                        <ul>
+                            <li><strong>Meeting Room</strong></li>
+                            <li><strong>Barriere</strong> (Barrier)</li>
+                            <li>Gegenseitige Abstimmung (z.B. Warten)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-outline" onclick="navigateToChapter(1)">← Zurück</button>
+                    <button class="btn btn-primary" onclick="navigateToChapter(3)">Weiter →</button>
+                </div>
+            </section>
+
+            <!-- Chapter 3: MultiKara -->
+            <section id="chapter3" class="content-section">
+                <div class="chapter-header">
+                    <span class="chapter-number">Kapitel 3</span>
+                    <h2>Übungen mit MultiKara</h2>
+                </div>
+
+                <div class="info-box">
+                    <h3>🐞 MultiKara: Concurrent Programming</h3>
+                    <p>MultiKara ist eine Lernumgebung der ETH Zürich, mit der parallele Prozesse visuell programmiert und getestet werden können.</p>
+                </div>
+
+                <div class="exercise-grid">
+                    <div class="exercise-card">
+                        <h4>📝 Aufgabenblatt 1: Verkehrsproblem</h4>
+                        <p>Simuliere Verkehrssituationen mit mehreren Karas, die sich auf einer Straße begegnen.</p>
+                        <p><strong>Lernziele:</strong></p>
+                        <ul>
+                            <li>Grundlagen der Nebenläufigkeit</li>
+                            <li>Kollisionsvermeidung</li>
+                            <li>Scheduler und Prioritäten</li>
+                        </ul>
+                        <button class="btn btn-secondary">Aufgabenblatt öffnen (PDF)</button>
+                    </div>
+
+                    <div class="exercise-card">
+                        <h4>📝 Aufgabenblatt 2: Busproblem</h4>
+                        <p>Mehrere Busse (Karas) müssen koordiniert an Haltestellen halten.</p>
+                        <p><strong>Lernziele:</strong></p>
+                        <ul>
+                            <li>Synchronisation von Prozessen</li>
+                            <li>Warten und Signalisieren</li>
+                            <li>Kritische Abschnitte</li>
+                        </ul>
+                        <button class="btn btn-secondary">Aufgabenblatt öffnen (PDF)</button>
+                    </div>
+
+                    <div class="exercise-card">
+                        <h4>📝 Aufgabenblatt 3: Weitere Übungen</h4>
+                        <p><strong>Aufgabe 1:</strong> Füllen eines Rechtecks mit mehreren Karas</p>
+                        <p><strong>Aufgabe 2:</strong> Erzeuger-Verbraucher-Problem</p>
+                        <p><strong>Lernziele:</strong></p>
+                        <ul>
+                            <li>Komplexe Synchronisation</li>
+                            <li>Producer-Consumer-Pattern</li>
+                            <li>Deadlock-Vermeidung</li>
+                        </ul>
+                        <button class="btn btn-secondary">Aufgabenblatt öffnen (PDF)</button>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <h3>🎮 MultiKara Features</h3>
+                    <div class="feature-list">
+                        <div class="feature">
+                            <span class="icon">⚙️</span>
+                            <div>
+                                <strong>Scheduler / Prioritäten</strong>
+                                <p>Steuere die Ausführungsreihenfolge der Karas</p>
+                            </div>
+                        </div>
+                        <div class="feature">
+                            <span class="icon">🎯</span>
+                            <div>
+                                <strong>Geschwindigkeitskontrolle</strong>
+                                <p>Passe die Ausführungsgeschwindigkeit an (langsam bis schnell)</p>
+                            </div>
+                        </div>
+                        <div class="feature">
+                            <span class="icon">🔍</span>
+                            <div>
+                                <strong>Visuelle Programmierung</strong>
+                                <p>Beobachte parallele Prozesse in Echtzeit</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-outline" onclick="navigateToChapter(2)">← Zurück</button>
+                    <button class="btn btn-primary" onclick="navigateToChapter(4)">Weiter →</button>
+                </div>
+            </section>
+
+            <!-- Chapter 4: Tasks & Threads -->
+            <section id="chapter4" class="content-section">
+                <div class="chapter-header">
+                    <span class="chapter-number">Kapitel 4</span>
+                    <h2>Tasks und Threads</h2>
+                </div>
+
+                <div class="concept-box">
+                    <h3>💡 Zwei Arten von Gleichzeitigkeit</h3>
+                    <p>Wie bei unserem Einführungsbeispiel existieren auch in Computersystemen zwei Arten von Gleichzeitigkeit:</p>
+                    
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Beispiel</th>
+                                    <th>TASK (Prozess)</th>
+                                    <th>THREAD (Faden)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Kochen</strong></td>
+                                    <td>Gesamte Arbeit eines Koches</td>
+                                    <td>Einzelne Tätigkeit eines Koches</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Computer</strong></td>
+                                    <td>Gesamtes gestartetes Programm</td>
+                                    <td>Nebenläufige Sequenz eines Programms</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="definition-grid">
+                    <div class="definition-card">
+                        <div class="def-icon">📦</div>
+                        <h4>TASK (Prozess)</h4>
+                        <p>Ein <strong>Task</strong> ist ein vollständiger, unabhängiger Prozess mit eigenem Speicherbereich.</p>
+                        <ul>
+                            <li>Eigener Adressraum</li>
+                            <li>Unabhängige Ausführung</li>
+                            <li>Kommunikation über IPC (Inter-Process Communication)</li>
+                        </ul>
+                    </div>
+
+                    <div class="definition-card">
+                        <div class="def-icon">🧵</div>
+                        <h4>THREAD (Faden)</h4>
+                        <p>Ein <strong>Thread</strong> ist ein Ablauffaden innerhalb eines Prozesses mit Zugriff auf den gleichen Speicherbereich.</p>
+                        <ul>
+                            <li>Gemeinsamer Speicher mit anderen Threads</li>
+                            <li>Leichtgewichtig (weniger Overhead)</li>
+                            <li>Direkte Kommunikation möglich</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="terminology-box">
+                    <h3>📚 Wichtige Begriffe</h3>
+                    
+                    <div class="term">
+                        <strong>Nebenläufigkeit (Concurrency)</strong>
+                        <p>Mehrere Aufgaben werden scheinbar gleichzeitig bearbeitet (durch schnelles Umschalten)</p>
+                    </div>
+
+                    <div class="term">
+                        <strong>Parallelverarbeitung (Parallelism)</strong>
+                        <p>Mehrere Aufgaben werden tatsächlich gleichzeitig auf verschiedenen Prozessorkernen ausgeführt</p>
+                    </div>
+
+                    <div class="term">
+                        <strong>MultiTasking</strong>
+                        <p>Mehrere Tasks (Prozesse) laufen quasi-parallel auf einem System</p>
+                    </div>
+
+                    <div class="term">
+                        <strong>MultiThreading</strong>
+                        <p>Mehrere Threads innerhalb eines Prozesses laufen quasi-parallel</p>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h3>🔍 Weitere Beispiele</h3>
+                    
+                    <div class="example-item">
+                        <h4>Webbrowser</h4>
+                        <p><strong>Task:</strong> Der gesamte Browser-Prozess</p>
+                        <p><strong>Threads:</strong></p>
+                        <ul>
+                            <li>UI-Thread (Benutzeroberfläche)</li>
+                            <li>Netzwerk-Thread (Downloads)</li>
+                            <li>Rendering-Thread (Seitendarstellung)</li>
+                            <li>JavaScript-Thread</li>
+                        </ul>
+                    </div>
+
+                    <div class="example-item">
+                        <h4>Textverarbeitung</h4>
+                        <p><strong>Task:</strong> Das Textverarbeitungsprogramm</p>
+                        <p><strong>Threads:</strong></p>
+                        <ul>
+                            <li>Eingabe-Thread (Tastatur)</li>
+                            <li>Rechtschreibprüfung-Thread</li>
+                            <li>Autospeichern-Thread</li>
+                            <li>Druck-Thread</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-outline" onclick="navigateToChapter(3)">← Zurück</button>
+                    <button class="btn btn-primary" onclick="navigateToChapter(5)">Weiter →</button>
+                </div>
+            </section>
+
+            <!-- Chapter 5: Java -->
+            <section id="chapter5" class="content-section">
+                <div class="chapter-header">
+                    <span class="chapter-number">Kapitel 5</span>
+                    <h2>Nebenläufigkeit in Java</h2>
+                </div>
+
+                <div class="info-box">
+                    <p>Java bietet die Möglichkeit, einzelne Programmteile (Threads) quasi-parallel ablaufen zu lassen.</p>
+                </div>
+
+                <div class="concept-box">
+                    <h3>🔧 Thread-Erstellung in Java</h3>
+                    <p>Ein Thread ist in Java immer die Instanz einer Klasse, die das Interface <code>Runnable</code> implementiert hat.</p>
+                    
+                    <p><strong>Zwei Möglichkeiten zur Thread-Erstellung:</strong></p>
+                    <ol>
+                        <li>Subklasse von <code>Thread</code> erstellen</li>
+                        <li>Interface <code>Runnable</code> implementieren</li>
+                    </ol>
+                </div>
+
+                <div class="code-example">
+                    <h4>Methode 1: Subklasse von Thread</h4>
+                    <pre><code class="language-java">class MeinThread extends Thread {
+    @Override
+    public void run() {
+        // Code, der im Thread ausgeführt werden soll
+        for (int i = 0; i < 10; i++) {
+            System.out.println("Thread läuft: " + i);
+            try {
+                Thread.sleep(1000); // 1 Sekunde warten
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+}
+
+// Verwendung:
+MeinThread thread = new MeinThread();
+thread.start(); // Thread starten (nicht run() aufrufen!)</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Methode 2: Runnable Interface</h4>
+                    <pre><code class="language-java">class MeineAufgabe implements Runnable {
+    @Override
+    public void run() {
+        // Code, der im Thread ausgeführt werden soll
+        for (int i = 0; i < 10; i++) {
+            System.out.println("Runnable läuft: " + i);
+            try {
+                Thread.sleep(1000); // 1 Sekunde warten
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+}
+
+// Verwendung:
+Thread thread = new Thread(new MeineAufgabe());
+thread.start();</code></pre>
+                </div>
+
+                <div class="concept-box warning">
+                    <h3>🔒 Synchronisation in Java</h3>
+                    <p>Die Synchronisation der Threads erfolgt mit:</p>
+                    
+                    <div class="sync-methods">
+                        <div class="sync-method">
+                            <h4><code>synchronized</code></h4>
+                            <p>Etabliert einen Monitor für einen kritischen Bereich. Gleichzeitig darf nur ein Thread auf das Objekt zugreifen.</p>
+                        </div>
+
+                        <div class="sync-method">
+                            <h4><code>wait()</code></h4>
+                            <p>Legt den eigenen Prozess schlafen und gibt den Monitor für andere Prozesse frei.</p>
+                        </div>
+
+                        <div class="sync-method">
+                            <h4><code>notify()</code></h4>
+                            <p>Stößt die Prozesse, die durch wait() angehalten wurden, wieder an.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <h3>🍽️ Klassisches Beispiel: Producer-Consumer-Problem</h3>
+                    <p>Das Erzeuger-Verbraucher-Problem ist eine klassische Problemstellung der Prozesssynchronisation.</p>
+                    
+                    <p><strong>Szenario:</strong></p>
+                    <p>Ein Roboter (Erzeuger) füllt eine Kiste und legt sie auf einem Zwischenspeicherplatz mit begrenzter Kapazität ab. Die Kiste wird dann von einem zweiten Roboter (Verbraucher) abgeholt. Auf den Zwischenspeicherplatz darf immer nur ein Roboter zugreifen.</p>
+                </div>
+
+                <div class="code-example">
+                    <h4>Depot-Klasse (Shared Resource)</h4>
+                    <pre><code class="language-java">class Depot {
+    private int buffer;
+    private boolean empty = true;
+
+    // Synchronized: Nur ein Thread kann gleichzeitig zugreifen
+    public synchronized int get() {
+        // Warten, wenn Depot leer ist
+        if (empty) {
+            try {
+                Thread.sleep(1000); // 1 Sekunde warten
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        
+        System.out.println("Abgeholt: " + buffer);
+        empty = true;
+        notify(); // Producer aufwecken
+        return buffer;
+    }
+
+    public synchronized void put(int value) {
+        // Warten, wenn Depot voll ist
+        if (!empty) {
+            try {
+                Thread.sleep(1000); // 1 Sekunde warten
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        
+        buffer = value;
+        empty = false;
+        System.out.println("Hinzugefügt: " + buffer);
+        notify(); // Consumer aufwecken
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Consumer-Thread</h4>
+                    <pre><code class="language-java">class Consumer extends Thread {
+    private Depot depot;
+
+    public Consumer(Depot depot) {
+        this.depot = depot;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            depot.get(); // Wert aus Depot holen
+            
+            try {
+                Thread.sleep(1000); // 1 Sekunde warten
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Producer-Thread</h4>
+                    <pre><code class="language-java">class Producer extends Thread {
+    private Depot depot;
+
+    public Producer(Depot depot) {
+        this.depot = depot;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            depot.put(i); // Wert ins Depot legen
+            
+            try {
+                Thread.sleep(1000); // 1 Sekunde warten
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Hauptprogramm</h4>
+                    <pre><code class="language-java">public class ProducerConsumerDemo {
+    public static void main(String[] args) {
+        // Gemeinsames Depot erstellen
+        Depot depot = new Depot();
+        
+        // Producer und Consumer erstellen
+        Producer producer = new Producer(depot);
+        Consumer consumer = new Consumer(depot);
+        
+        // Threads starten
+        producer.start();
+        consumer.start();
+        
+        // Auf Beendigung warten
+        try {
+            Thread.sleep(1000); // 1 Sekunde warten
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        
+        System.out.println("Fertig!");
+    }
+}</code></pre>
+                </div>
+
+                <div class="example-box danger">
+                    <h3>🍴 Klassisches Problem: Speisende Philosophen</h3>
+                    <p>Das Philosophenproblem ist ein klassisches Beispiel für die Notwendigkeit einer Prozess-Synchronisation.</p>
+                    
+                    <p><strong>Szenario:</strong></p>
+                    <p>Es sitzen fünf Philosophen an einem runden Tisch, und jeder hat einen Teller mit Spaghetti vor sich. Zum Essen von Spaghetti benötigt jeder Philosoph zwei Gabeln. Allerdings sind nur fünf Gabeln vorhanden, die zwischen den Tellern liegen.</p>
+                    
+                    <p><strong>Das Problem:</strong></p>
+                    <ul>
+                        <li>Jeder Philosoph greift zuerst die linke, dann die rechte Gabel</li>
+                        <li>Wenn alle gleichzeitig ihre linke Gabel nehmen, wartet jeder auf die rechte</li>
+                        <li>Niemand kann essen → <strong>Deadlock!</strong></li>
+                    </ul>
+
+                    <p><strong>Lösungsansätze:</strong></p>
+                    <ul>
+                        <li>Maximal 4 Philosophen gleichzeitig am Tisch</li>
+                        <li>Asymmetrische Lösung (ein Philosoph greift erst rechts)</li>
+                        <li>Beide Gabeln atomar (gleichzeitig) aufnehmen</li>
+                        <li>Timeout-Mechanismus</li>
+                    </ul>
+                </div>
+
+                <div class="code-example">
+                    <h4>Philosophen-Problem: Gabel-Klasse</h4>
+                    <pre><code class="language-java">class Gabel {
+    private boolean verfuegbar = true;
+    private int nummer;
+
+    public Gabel(int nummer) {
+        this.nummer = nummer;
+    }
+
+    public synchronized void aufnehmen() throws InterruptedException {
+        while (!verfuegbar) {
+            wait(); // Warten, bis Gabel frei ist
+        }
+        verfuegbar = false;
+        System.out.println("Gabel " + nummer + " aufgenommen");
+    }
+
+    public synchronized void ablegen() {
+        verfuegbar = true;
+        System.out.println("Gabel " + nummer + " abgelegt");
+        notify(); // Wartende Philosophen benachrichtigen
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Philosophen-Klasse</h4>
+                    <pre><code class="language-java">class Philosoph extends Thread {
+    private int nummer;
+    private Gabel linkeGabel;
+    private Gabel rechteGabel;
+
+    public Philosoph(int nummer, Gabel links, Gabel rechts) {
+        this.nummer = nummer;
+        this.linkeGabel = links;
+        this.rechteGabel = rechts;
+    }
+
+    private void denken() throws InterruptedException {
+        System.out.println("Philosoph " + nummer + " denkt");
+        sleep((int)(Math.random() * 1000));
+    }
+
+    private void essen() throws InterruptedException {
+        System.out.println("Philosoph " + nummer + " isst");
+        sleep((int)(Math.random() * 1000));
+    }
+
+    @Override
+    public void run() {
+        try {
+            for (int i = 0; i < 5; i++) {
+                denken();
+                
+                // Gabeln aufnehmen
+                linkeGabel.aufnehmen();
+                rechteGabel.aufnehmen();
+                
+                essen();
+                
+                // Gabeln ablegen
+                linkeGabel.ablegen();
+                rechteGabel.ablegen();
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}</code></pre>
+                </div>
+
+                <div class="best-practices">
+                    <h3>✅ Best Practices für Thread-Programmierung</h3>
+                    
+                    <div class="practice">
+                        <span class="icon">1️⃣</span>
+                        <div>
+                            <strong>Minimiere kritische Abschnitte</strong>
+                            <p>Halte synchronized-Blöcke so kurz wie möglich</p>
+                        </div>
+                    </div>
+
+                    <div class="practice">
+                        <span class="icon">2️⃣</span>
+                        <div>
+                            <strong>Vermeide Deadlocks</strong>
+                            <p>Definiere eine feste Reihenfolge für das Sperren von Ressourcen</p>
+                        </div>
+                    </div>
+
+                    <div class="practice">
+                        <span class="icon">3️⃣</span>
+                        <div>
+                            <strong>Nutze höhere Abstraktionen</strong>
+                            <p>Verwende java.util.concurrent (ExecutorService, CountDownLatch, etc.)</p>
+                        </div>
+                    </div>
+
+                    <div class="practice">
+                        <span class="icon">4️⃣</span>
+                        <div>
+                            <strong>Teste gründlich</strong>
+                            <p>Thread-Probleme sind oft schwer reproduzierbar</p>
+                        </div>
+                    </div>
+
+                    <div class="practice">
+                        <span class="icon">5️⃣</span>
+                        <div>
+                            <strong>Dokumentiere Thread-Safety</strong>
+                            <p>Markiere Klassen und Methoden klar als thread-safe oder nicht</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="navigation-buttons">
+                    <button class="btn btn-outline" onclick="navigateToChapter(4)">← Zurück</button>
+                    <button class="btn btn-success" onclick="showCompletion()">Abschließen ✓</button>
+                </div>
+            </section>
+
+            <!-- Completion Modal -->
+            <div id="completionModal" class="modal hidden">
+                <div class="modal-content">
+                    <h2>🎉 Glückwunsch!</h2>
+                    <p>Du hast den Lernpfad erfolgreich abgeschlossen!</p>
+                    <h3>Was du gelernt hast:</h3>
+                    <ul>
+                        <li>✅ Grundbegriffe der Nebenläufigkeit</li>
+                        <li>✅ Synchronisation und Konfliktmanagement</li>
+                        <li>✅ Tasks und Threads</li>
+                        <li>✅ Praktische Umsetzung in Java</li>
+                        <li>✅ Klassische Probleme (Producer-Consumer, Philosophen)</li>
+                    </ul>
+                    <div class="modal-buttons">
+                        <button class="btn btn-primary" onclick="hideCompletion()">Zum Anfang</button>
+                        <button class="btn btn-outline" onclick="hideCompletion()">Schließen</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Lernpfad: Parallele Prozesse | Informatik Oberstufe</p>
+            <p>Basierend auf Materialien für die 12. Klasse</p>
+        </div>
+    </footer>
+
+    <!-- Prism script should be loaded before our script so highlighting is available -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <!-- Add Java language support for Prism -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
